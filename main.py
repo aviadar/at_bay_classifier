@@ -24,8 +24,7 @@ for index, out_dir in df.ouput_dir.iteritems():
     if processed_text is None or processed_text == '':
         continue
 
-    # res = classifier.classify(input_text=processed_text[:100], candidate_labels=labels)
-    res = classifier.classify(input_text=processed_text[:100], candidate_labels=labels)
+    res = classifier.classify(input_text=processed_text, candidate_labels=labels)
     if res['scores'][0] < OTHER_LABEL_LIMIT:
         pred_label = 'Other'
     else:
