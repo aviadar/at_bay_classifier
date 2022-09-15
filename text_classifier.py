@@ -19,7 +19,7 @@ class TextClassifier:
         model = AutoModelForSequenceClassification.from_pretrained(model_type)
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_type)
         self.classifier = pipeline(task='zero-shot-classification',
-                                   # device=0, # use this for GPU
+                                   device=0,  # use this for GPU
                                    model=model,
                                    tokenizer=tokenizer)
 
