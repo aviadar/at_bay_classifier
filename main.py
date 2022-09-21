@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import boto3
 import json
+from os.path import exists
+import pickle
+import logging
+from tqdm import tqdm
 
 from text_extractor import TextExtractor
 from text_classifier import TextClassifier
@@ -11,15 +15,33 @@ OTHER_LABEL_LIMIT = 0.3
 
 
 def main():
+    logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.DEBUG)
+    logging.info('main started')
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket('crawling-idc')
     objects = my_bucket.objects.filter(Prefix='year=2022/month=9/')
-    object_depth = {}
-    for obj in objects:
+    obj_depth_path = 'obj_depth.pckl'
+    is_obj_depth_new = True
+    if exists(obj_depth_path):
+        with open(obj_depth_path, 'rb') as fid:
+            object_depth = pickle.load(fid)
+        is_obj_depth_new = False
+    else:
+        object_depth = {}
+    # i=0
+    logging.info('downloading bucket')
+    for obj in tqdm(objects):
+        # i+=1
         path, filename = os.path.split(obj.key)
         os.makedirs(path, exist_ok=True)
         my_bucket.download_file(obj.key, os.path.join(path, filename))
-        object_depth[obj.key] = json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task']['depth']
+        if is_obj_depth_new:
+            object_depth[obj.key] = json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task']['depth']
+        # if i > 99:
+        #     break
+
+    with open(obj_depth_path, 'wb') as fid:
+        pickle.dump(object_depth, fid)
 
     df = pd.read_csv('restricted_dataset_public_bucket - Sheet1.csv')
 
@@ -35,11 +57,13 @@ def main():
 
     classifier = TextClassifier()
 
-    for index, out_dir in df.ouput_dir.iteritems():
+    logging.info('processing text')
+    for index, out_dir in tqdm(df.ouput_dir.iteritems()):
         processed_text = (TextExtractor.extract_from_dir(out_dir[27:], object_depth))
         if processed_text is None or processed_text == '':
             continue
 
+        logging.info('classifying')
         res = classifier.classify(input_text=processed_text, candidate_labels=labels)
         if res['scores'][0] < OTHER_LABEL_LIMIT:
             pred_label = 'Other'
