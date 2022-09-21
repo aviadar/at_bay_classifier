@@ -5,7 +5,7 @@ from typing import Optional
 
 class TextExtractor:
     @staticmethod
-    def extract_from_dir(dir_path: str) -> Optional[str]:
+    def extract_from_dir(dir_path: str, obj_depth: dict, max_depth_to_consider=1) -> Optional[str]:
         try:
             file_list = os.listdir(dir_path)
         except FileNotFoundError:
@@ -13,7 +13,8 @@ class TextExtractor:
 
         appended_processed_text = ''
         for file in file_list:
-            appended_processed_text += TextExtractor.extract_from_file(os.path.join(dir_path, file))
+            if obj_depth[os.path.join(dir_path, file)] <= max_depth_to_consider:
+                appended_processed_text += TextExtractor.extract_from_file(os.path.join(dir_path, file))
         return appended_processed_text
 
     @staticmethod
