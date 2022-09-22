@@ -28,17 +28,17 @@ def main():
         is_obj_depth_new = False
     else:
         object_depth = {}
-    # i=0
+    i=0
     logging.error('downloading bucket')
     for obj in tqdm(objects):
-        # i+=1
+        i+=1
         path, filename = os.path.split(obj.key)
         os.makedirs(path, exist_ok=True)
         my_bucket.download_file(obj.key, os.path.join(path, filename))
         if is_obj_depth_new:
             object_depth[obj.key] = json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task']['depth']
-        # if i > 5:
-        #     break
+        if i > 100:
+            break
 
     with open(obj_depth_path, 'wb') as fid:
         pickle.dump(object_depth, fid)
