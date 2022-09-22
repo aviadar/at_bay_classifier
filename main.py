@@ -15,8 +15,9 @@ OTHER_LABEL_LIMIT = 0.3
 
 
 def main():
-    logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.DEBUG)
-    logging.info('main started')
+    # logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.DEBUG)
+    # logging.info('main started')
+    print('main started')
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket('crawling-idc')
     objects = my_bucket.objects.filter(Prefix='year=2022/month=9/')
@@ -29,7 +30,8 @@ def main():
     else:
         object_depth = {}
     # i=0
-    logging.info('downloading bucket')
+    # logging.info('downloading bucket')
+    print('downloading bucket')
     for obj in tqdm(objects):
         # i+=1
         path, filename = os.path.split(obj.key)
@@ -57,13 +59,15 @@ def main():
 
     classifier = TextClassifier()
 
-    logging.info('processing text')
+    # logging.info('processing text')
+    print('processing text')
     for index, out_dir in tqdm(df.ouput_dir.iteritems()):
         processed_text = (TextExtractor.extract_from_dir(out_dir[27:], object_depth))
         if processed_text is None or processed_text == '':
             continue
 
-        logging.info('classifying')
+        # logging.info('classifying')
+        print('classifying')
         res = classifier.classify(input_text=processed_text, candidate_labels=labels)
         if res['scores'][0] < OTHER_LABEL_LIMIT:
             pred_label = 'Other'
@@ -81,7 +85,7 @@ def main():
                                    'predicted_label': pred_label},
                                   index=[0])
 
-    res_df.to_csv('red_df.csv')
+    res_df.to_csv('res_df.csv')
 
 
 if __name__ == "__main__":
