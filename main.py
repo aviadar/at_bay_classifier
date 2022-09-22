@@ -15,9 +15,8 @@ OTHER_LABEL_LIMIT = 0.3
 
 
 def main():
-    # logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.DEBUG)
-    # logging.info('main started')
-    print('main started')
+    logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.ERROR)
+    logging.error('main started')
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket('crawling-idc')
     objects = my_bucket.objects.filter(Prefix='year=2022/month=9/')
@@ -30,8 +29,7 @@ def main():
     else:
         object_depth = {}
     # i=0
-    # logging.info('downloading bucket')
-    print('downloading bucket')
+    logging.error('downloading bucket')
     for obj in tqdm(objects):
         # i+=1
         path, filename = os.path.split(obj.key)
@@ -39,7 +37,7 @@ def main():
         my_bucket.download_file(obj.key, os.path.join(path, filename))
         if is_obj_depth_new:
             object_depth[obj.key] = json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task']['depth']
-        # if i > 99:
+        # if i > 5:
         #     break
 
     with open(obj_depth_path, 'wb') as fid:
@@ -59,15 +57,15 @@ def main():
 
     classifier = TextClassifier()
 
-    # logging.info('processing text')
-    print('processing text')
-    for index, out_dir in tqdm(df.ouput_dir.iteritems()):
-        processed_text = (TextExtractor.extract_from_dir(out_dir[27:], object_depth))
+    logging.error('processing text')
+    # print('processing text')
+    for index, row in df.iterrows():
+        processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
         if processed_text is None or processed_text == '':
             continue
 
-        # logging.info('classifying')
-        print('classifying')
+        logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
+        # print('classifying')
         res = classifier.classify(input_text=processed_text, candidate_labels=labels)
         if res['scores'][0] < OTHER_LABEL_LIMIT:
             pred_label = 'Other'
