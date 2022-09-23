@@ -11,7 +11,7 @@ from text_extractor import TextExtractor
 from text_classifier import TextClassifier
 
 
-OTHER_LABEL_LIMIT = 0.3
+OTHER_LABEL_LIMIT = 0.2
 
 
 def main():
