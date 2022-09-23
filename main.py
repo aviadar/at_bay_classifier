@@ -19,7 +19,7 @@ def main():
     logging.error('main started')
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket('crawling-idc')
-    objects = my_bucket.objects.filter(Prefix='year=2022/month=9/')
+    # objects = my_bucket.objects.filter(Prefix='year=2022/month=9/')
     obj_depth_path = 'obj_depth.pckl'
     is_obj_depth_new = True
     if exists(obj_depth_path):
@@ -28,22 +28,24 @@ def main():
         is_obj_depth_new = False
     else:
         object_depth = {}
-    # i=0
+
     logging.error('downloading bucket')
-    for obj in tqdm(objects):
-        # i+=1
-        path, filename = os.path.split(obj.key)
-        os.makedirs(path, exist_ok=True)
-        my_bucket.download_file(obj.key, os.path.join(path, filename))
-        if is_obj_depth_new:
-            object_depth[obj.key] = json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task']['depth']
-        # if i > 10:
-        #     break
+
+    df = pd.read_csv('restricted_dataset_public_bucket - Sheet1.csv')
+
+    for _, output_dir in df.ouput_dir.iteritems():
+        objects = my_bucket.objects.filter(Prefix=output_dir[27:])
+        for obj in tqdm(objects):
+            path, filename = os.path.split(obj.key)
+            os.makedirs(path, exist_ok=True)
+            my_bucket.download_file(obj.key, os.path.join(path, filename))
+            if is_obj_depth_new:
+                object_depth[obj.key] = \
+                json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task'][
+                    'depth']
 
     with open(obj_depth_path, 'wb') as fid:
         pickle.dump(object_depth, fid)
-
-    df = pd.read_csv('restricted_dataset_public_bucket - Sheet1.csv')
 
     # remove problematic labeling
     df.label = df.label.str.replace('Payment Processing\n', 'Payment Processing')
