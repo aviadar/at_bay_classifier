@@ -33,9 +33,9 @@ def main():
 
     df = pd.read_csv('restricted_dataset_public_bucket - Sheet1.csv')
 
-    for _, output_dir in df.ouput_dir.iteritems():
+    for _, output_dir in tqdm(df.ouput_dir.iteritems()):
         objects = my_bucket.objects.filter(Prefix=output_dir[27:])
-        for obj in tqdm(objects):
+        for obj in objects:
             path, filename = os.path.split(obj.key)
             os.makedirs(path, exist_ok=True)
             my_bucket.download_file(obj.key, os.path.join(path, filename))
