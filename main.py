@@ -12,7 +12,7 @@ from text_classifier import TextClassifier
 
 
 OTHER_LABEL_LIMIT = 0.2
-
+DOWNLOAD_BUCKET = False
 
 def main():
     logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.ERROR)
@@ -29,23 +29,24 @@ def main():
     else:
         object_depth = {}
 
-    logging.error('downloading bucket')
-
     df = pd.read_csv('restricted_dataset_public_bucket - Sheet1.csv')
 
-    for _, output_dir in tqdm(df.ouput_dir.iteritems()):
-        objects = my_bucket.objects.filter(Prefix=output_dir[27:])
-        for obj in objects:
-            path, filename = os.path.split(obj.key)
-            os.makedirs(path, exist_ok=True)
-            my_bucket.download_file(obj.key, os.path.join(path, filename))
-            if is_obj_depth_new:
-                object_depth[obj.key] = \
-                json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task'][
-                    'depth']
+    if DOWNLOAD_BUCKET:
+        logging.error('downloading bucket')
 
-    with open(obj_depth_path, 'wb') as fid:
-        pickle.dump(object_depth, fid)
+        for _, output_dir in tqdm(df.ouput_dir.iteritems()):
+            objects = my_bucket.objects.filter(Prefix=output_dir[27:])
+            for obj in objects:
+                path, filename = os.path.split(obj.key)
+                os.makedirs(path, exist_ok=True)
+                my_bucket.download_file(obj.key, os.path.join(path, filename))
+                if is_obj_depth_new:
+                    object_depth[obj.key] = \
+                    json.loads(s3_resource.Object('crawling-idc', obj.key).metadata['metaflow-user-attributes'])['task'][
+                        'depth']
+
+        with open(obj_depth_path, 'wb') as fid:
+            pickle.dump(object_depth, fid)
 
     # remove problematic labeling
     df.label = df.label.str.replace('Payment Processing\n', 'Payment Processing')
@@ -62,18 +63,22 @@ def main():
     logging.error('processing text')
     # print('processing text')
     for index, row in df.iterrows():
-        processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
-        if processed_text is None or processed_text == '':
-            continue
+        try:
+            processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
+            if processed_text is None or processed_text == '':
+                continue
 
-        print(index)
-        logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
-        # print('classifying')
-        res = classifier.classify(input_text=processed_text, candidate_labels=labels)
-        if res['scores'][0] < OTHER_LABEL_LIMIT:
-            pred_label = 'Other'
-        else:
-            pred_label = res['labels'][0]
+            print(index)
+            logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
+            # print('classifying')
+            res = classifier.classify(input_text=processed_text, candidate_labels=labels)
+            if res['scores'][0] < OTHER_LABEL_LIMIT:
+                pred_label = 'Other'
+            else:
+                pred_label = res['labels'][0]
+        except Exception as e:
+            logging.error(e)
+            pred_label = 'Unkwonn'
 
         if not res_df.empty:
             res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
