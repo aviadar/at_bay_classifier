@@ -14,6 +14,7 @@ from text_classifier import TextClassifier
 OTHER_LABEL_LIMIT = 0.2
 DOWNLOAD_BUCKET = False
 
+
 def main():
     logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.ERROR)
     logging.error('main started')
@@ -62,7 +63,7 @@ def main():
 
     logging.error('processing text')
     # print('processing text')
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows()):
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
@@ -77,8 +78,9 @@ def main():
             else:
                 pred_label = res['labels'][0]
         except Exception as e:
-            logging.error(e)
-            pred_label = 'Unkwonn'
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            logging.error(template.format(type(e).__name__, e.args))
+            pred_label = 'Unknown'
 
         if not res_df.empty:
             res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
