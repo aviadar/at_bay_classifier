@@ -11,7 +11,7 @@ from text_extractor import TextExtractor
 from text_classifier import TextClassifier
 
 
-OTHER_LABEL_LIMIT = 0.2
+OTHER_LABEL_LIMIT = 0.132
 DOWNLOAD_BUCKET = False
 
 
@@ -50,14 +50,18 @@ def main():
             pickle.dump(object_depth, fid)
 
     # remove problematic labeling
-    df.label = df.label.str.replace('Payment Processing\n', 'Payment Processing')
+    df.label = df.label.str.replace('Payment Processing\n', 'Credit')
+    df.label = df.label.str.replace('Adult Content', 'Porn')
+    df.label = df.label.str.replace('Debt Collection Agency', 'Debt')
+    df.label = df.label.str.replace('Educational Services', 'Education')
+
 
     # zero shot classification will not use 'other'
     labels = list(df.label.unique())
     labels.remove('Other')
 
     # create empty df
-    res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label'])
+    res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores'])
 
     classifier = TextClassifier()
 
@@ -85,12 +89,18 @@ def main():
         if not res_df.empty:
             res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
                                                       'actual_label': df.label[index],
-                                                      'predicted_label': pred_label}, index=[0])],
+                                                      'predicted_label': pred_label,
+                                                      'result_labels': res['labels'],
+                                                      'result_scores': res['scores']
+                                                      }, index=[0])],
                                ignore_index=True)
         else:
             res_df = pd.DataFrame({'id': df.job_id[index],
                                    'actual_label': df.label[index],
-                                   'predicted_label': pred_label},
+                                   'predicted_label': pred_label,
+                                   'result_labels': res['labels'],
+                                   'result_scores': res['scores']
+                                   },
                                   index=[0])
 
     res_df.to_csv('res_df.csv')
