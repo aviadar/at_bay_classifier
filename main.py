@@ -67,7 +67,11 @@ def main():
 
     logging.error('processing text')
     # print('processing text')
+    i=0
     for index, row in tqdm(df.iterrows()):
+        i+=1
+        if i>2:
+            break
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
@@ -90,16 +94,24 @@ def main():
             res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
                                                       'actual_label': df.label[index],
                                                       'predicted_label': pred_label,
-                                                      'result_labels': res['labels'],
-                                                      'result_scores': res['scores']
+                                                      'result_labels_0': res['labels'][0],
+                                                      'result_scores_0': res['scores'][0],
+                                                      'result_labels_1': res['labels'][1],
+                                                      'result_scores_1': res['scores'][1],
+                                                      'result_labels_2': res['labels'][2],
+                                                      'result_scores_2': res['scores'][2]
                                                       }, index=[0])],
                                ignore_index=True)
         else:
             res_df = pd.DataFrame({'id': df.job_id[index],
                                    'actual_label': df.label[index],
                                    'predicted_label': pred_label,
-                                   'result_labels': res['labels'],
-                                   'result_scores': res['scores']
+                                   'result_labels_0': res['labels'][0],
+                                   'result_scores_0': res['scores'][0],
+                                   'result_labels_1': res['labels'][1],
+                                   'result_scores_1': res['scores'][1],
+                                   'result_labels_2': res['labels'][2],
+                                   'result_scores_2': res['scores'][2]
                                    },
                                   index=[0])
 
