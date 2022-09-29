@@ -66,16 +66,13 @@ def main():
     classifier = TextClassifier()
 
     logging.error('processing text')
-    # print('processing text')
     for index, row in tqdm(df.iterrows()):
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
                 continue
 
-            print(index)
             logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
-            # print('classifying')
             res = classifier.classify(input_text=processed_text, candidate_labels=labels)
             if res['scores'][0] < OTHER_LABEL_LIMIT:
                 pred_label = 'Other'
