@@ -67,11 +67,7 @@ def main():
 
     logging.error('processing text')
     # print('processing text')
-    i=0
     for index, row in tqdm(df.iterrows()):
-        i+=1
-        if i>2:
-            break
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
