@@ -8,8 +8,7 @@ import logging
 from tqdm import tqdm
 
 from text_extractor import TextExtractor
-from text_classifier import TextClassifier
-
+from text_classifier import TextClassifier, GpuUsage
 
 OTHER_LABEL_LIMIT = 0.132
 DOWNLOAD_BUCKET = False
@@ -63,7 +62,7 @@ def main():
     # create empty df
     res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores'])
 
-    classifier = TextClassifier()
+    classifier = TextClassifier(gpu=GpuUsage.Off)
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
@@ -84,29 +83,55 @@ def main():
             pred_label = 'Unknown'
 
         if not res_df.empty:
-            res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
-                                                      'actual_label': df.label[index],
-                                                      'predicted_label': pred_label,
-                                                      'result_labels_0': res['labels'][0],
-                                                      'result_scores_0': res['scores'][0],
-                                                      'result_labels_1': res['labels'][1],
-                                                      'result_scores_1': res['scores'][1],
-                                                      'result_labels_2': res['labels'][2],
-                                                      'result_scores_2': res['scores'][2]
-                                                      }, index=[0])],
-                               ignore_index=True)
+            if pred_label != 'Unknown':
+                res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
+                                                          'actual_label': df.label[index],
+                                                          'predicted_label': pred_label,
+                                                          'result_labels_0': res['labels'][0],
+                                                          'result_scores_0': res['scores'][0],
+                                                          'result_labels_1': res['labels'][1],
+                                                          'result_scores_1': res['scores'][1],
+                                                          'result_labels_2': res['labels'][2],
+                                                          'result_scores_2': res['scores'][2]
+                                                          }, index=[0])],
+                                   ignore_index=True)
+            else:
+                res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
+                                                          'actual_label': df.label[index],
+                                                          'predicted_label': pred_label,
+                                                          'result_labels_0': 'NaN',
+                                                          'result_scores_0': 0,
+                                                          'result_labels_1': 'NaN',
+                                                          'result_scores_1': 0,
+                                                          'result_labels_2': 'NaN',
+                                                          'result_scores_2': 0
+                                                          }, index=[0])],
+                                   ignore_index=True)
         else:
-            res_df = pd.DataFrame({'id': df.job_id[index],
-                                   'actual_label': df.label[index],
-                                   'predicted_label': pred_label,
-                                   'result_labels_0': res['labels'][0],
-                                   'result_scores_0': res['scores'][0],
-                                   'result_labels_1': res['labels'][1],
-                                   'result_scores_1': res['scores'][1],
-                                   'result_labels_2': res['labels'][2],
-                                   'result_scores_2': res['scores'][2]
-                                   },
-                                  index=[0])
+            if pred_label != 'Unknown':
+                res_df = pd.DataFrame({'id': df.job_id[index],
+                                       'actual_label': df.label[index],
+                                       'predicted_label': pred_label,
+                                       'result_labels_0': res['labels'][0],
+                                       'result_scores_0': res['scores'][0],
+                                       'result_labels_1': res['labels'][1],
+                                       'result_scores_1': res['scores'][1],
+                                       'result_labels_2': res['labels'][2],
+                                       'result_scores_2': res['scores'][2]
+                                       },
+                                      index=[0])
+            else:
+                res_df = pd.DataFrame({'id': df.job_id[index],
+                                       'actual_label': df.label[index],
+                                       'predicted_label': pred_label,
+                                       'result_labels_0': 'NaN',
+                                       'result_scores_0': 0,
+                                       'result_labels_1': 'NaN',
+                                       'result_scores_1': 0,
+                                       'result_labels_2': 'NaN',
+                                       'result_scores_2': 0
+                                       },
+                                      index=[0])
 
     res_df.to_csv('res_df.csv')
 
