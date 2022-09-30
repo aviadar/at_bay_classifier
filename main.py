@@ -61,7 +61,7 @@ def main():
     # create empty df
     res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores'])
 
-    classifier = TextClassifier(gpu=GpuUsage.On)
+    classifier = TextClassifier(gpu=GpuUsage.Off)
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
@@ -79,7 +79,7 @@ def main():
 
             logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
             res = classifier.classify(input_text=processed_text, candidate_labels=labels)
-            if res in None:
+            if res is None:
                 pred_label = 'Unknown_lang'
             else:
                 if res['scores'][0] < OTHER_LABEL_LIMIT:
