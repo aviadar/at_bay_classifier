@@ -1,6 +1,13 @@
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from enum import Enum
 from summarizer import Summarizer
+import spacy
+from spacy.language import Language
+from spacy_langdetect import LanguageDetector
+
+
+def get_lang_detector(nlp, name):
+    return LanguageDetector()
 
 
 class GpuUsage(Enum):
@@ -37,7 +44,15 @@ class TextClassifier:
 
         self.summarizer = Summarizer(gpu.value)
 
+        self.nlp = spacy.load("en_core_web_sm")
+        Language.factory("language_detector", func=get_lang_detector)
+        self.nlp.add_pipe('language_detector', last=True)
+
     def classify(self, input_text: str, candidate_labels: list[str]) -> dict:
         reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()) if i < 300)
-        res = self.classifier(self.summarizer.summarize(reduced_txt), candidate_labels, multi_label=False)
+        lang = self.nlp(reduced_txt)._.language # 3
+        if lang['language'] == 'en':
+            res = self.classifier(self.summarizer.summarize(reduced_txt), candidate_labels, multi_label=False)
+        else:
+            res = None
         return res

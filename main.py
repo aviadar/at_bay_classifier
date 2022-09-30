@@ -65,7 +65,7 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=12/minutes=11/e63b837b-9be8-49d0-8251-c5b0af41abc1':
+        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=15/minutes=25/ad587506-c925-4347-a3f4-a28f28770a00':
         #     continue
         if index < 95:
             continue
@@ -79,17 +79,20 @@ def main():
 
             logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
             res = classifier.classify(input_text=processed_text, candidate_labels=labels)
-            if res['scores'][0] < OTHER_LABEL_LIMIT:
-                pred_label = 'Other'
+            if res in None:
+                pred_label = 'Unknown_lang'
             else:
-                pred_label = res['labels'][0]
+                if res['scores'][0] < OTHER_LABEL_LIMIT:
+                    pred_label = 'Other'
+                else:
+                    pred_label = res['labels'][0]
         except Exception as e:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             logging.error(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
 
         if not res_df.empty:
-            if pred_label != 'Unknown':
+            if pred_label != 'Unknown' and pred_label != 'Unknown_lang':
                 res_df = pd.concat([res_df, pd.DataFrame({'id': df.job_id[index],
                                                           'actual_label': df.label[index],
                                                           'predicted_label': pred_label,
