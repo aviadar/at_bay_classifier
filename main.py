@@ -65,8 +65,8 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=15/minutes=26/b9e61c59-3195-4624-98c4-f5720bc32b14':
-        #     continue
+        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=4/926af210-9d77-4c40-b7f9-c5b57309f22c':
+            continue
         if index < 95:
             continue
 
