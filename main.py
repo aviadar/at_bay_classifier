@@ -65,8 +65,8 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=12/minutes=11/e63b837b-9be8-49d0-8251-c5b0af41abc1':
-            continue
+        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=12/minutes=11/e63b837b-9be8-49d0-8251-c5b0af41abc1':
+        #     continue
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
