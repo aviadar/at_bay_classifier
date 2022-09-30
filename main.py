@@ -33,7 +33,6 @@ def main():
 
     if DOWNLOAD_BUCKET:
         logging.error('downloading bucket')
-
         for _, output_dir in tqdm(df.ouput_dir.iteritems()):
             objects = my_bucket.objects.filter(Prefix=output_dir[27:])
             for obj in objects:
@@ -66,6 +65,8 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
+        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=12/minutes=11/e63b837b-9be8-49d0-8251-c5b0af41abc1':
+            continue
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
@@ -79,7 +80,7 @@ def main():
                 pred_label = res['labels'][0]
         except Exception as e:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            logging.error(template.format(type(e).__name__, e.args))
+            logging.fatal(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
 
         if not res_df.empty:
