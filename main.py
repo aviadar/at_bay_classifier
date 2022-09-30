@@ -69,6 +69,9 @@ def main():
         #     continue
         if index < 95:
             continue
+
+        if index > 200:
+            break
         try:
             processed_text = (TextExtractor.extract_from_dir(row.ouput_dir[27:], object_depth))
             if processed_text is None or processed_text == '':
