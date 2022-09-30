@@ -65,7 +65,7 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=4/926af210-9d77-4c40-b7f9-c5b57309f22c':
+        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=15/minutes=26/b9e61c59-3195-4624-98c4-f5720bc32b14':
             continue
         if index < 95:
             continue
@@ -88,7 +88,7 @@ def main():
                     pred_label = res['labels'][0]
         except Exception as e:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            logging.error(template.format(type(e).__name__, e.args))
+            logging.fatal(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
 
         if not res_df.empty:
