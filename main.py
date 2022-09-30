@@ -88,7 +88,7 @@ def main():
                     pred_label = res['labels'][0]
         except Exception as e:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            logging.fatal(template.format(type(e).__name__, e.args))
+            logging.error(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
 
         if not res_df.empty:
