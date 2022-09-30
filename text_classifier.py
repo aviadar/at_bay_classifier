@@ -49,7 +49,7 @@ class TextClassifier:
         self.nlp.add_pipe('language_detector', last=True)
 
     def classify(self, input_text: str, candidate_labels: list[str]) -> dict:
-        reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()) if i < 300)
+        reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()) if i < 250)
         lang = self.nlp(reduced_txt)._.language # 3
         if lang['language'] == 'en':
             res = self.classifier(self.summarizer.summarize(reduced_txt), candidate_labels, multi_label=False)
