@@ -63,7 +63,7 @@ def main():
     # create empty df
     res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores'])
 
-    classifier = TextClassifier(gpu=GpuUsage.On)
+    classifier = TextClassifier(gpu=GpuUsage.Off)
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):

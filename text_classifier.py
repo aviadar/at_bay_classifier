@@ -31,7 +31,7 @@ class TextClassifier:
                  tokenizer_type: TokenizerType = TokenizerType.navteca_bart_large_mnli.value,
                  gpu: GpuUsage = GpuUsage.On):
         model = AutoModelForSequenceClassification.from_pretrained(model_type)
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_type)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_type, truncation=True)
         if gpu == GpuUsage.On:
             self.classifier = pipeline(task='zero-shot-classification',
                                        device=0,  # use this for GPU
