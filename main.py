@@ -34,6 +34,8 @@ def main():
     if DOWNLOAD_BUCKET:
         logging.error('downloading bucket')
         for _, output_dir in tqdm(df.ouput_dir.iteritems()):
+            # if output_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=27/d63dff3f-e904-4b6e-803b-1e98994e9927':
+            #     continue
             objects = my_bucket.objects.filter(Prefix=output_dir[27:])
             for obj in objects:
                 path, filename = os.path.split(obj.key)
@@ -65,8 +67,8 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=15/minutes=26/b9e61c59-3195-4624-98c4-f5720bc32b14':
-        #     continue
+        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=27/d63dff3f-e904-4b6e-803b-1e98994e9927':
+            continue
         # if index < 95:
         #     continue
         #
@@ -87,6 +89,7 @@ def main():
                 else:
                     pred_label = res['labels'][0]
         except Exception as e:
+            print(e)
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             logging.error(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
