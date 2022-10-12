@@ -50,13 +50,13 @@ class TextClassifier:
 
         # self.tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn", model_max_len=1024)
 
-    @staticmethod
-    def divide_chunks(input_txt, n_chunks):
-        for i in range(0, len(input_txt), n_chunks):
-            yield input_txt[i:i + n_chunks]
+    # @staticmethod
+    # def divide_chunks(input_txt, n_chunks):
+    #     for i in range(0, len(input_txt), n_chunks):
+    #         yield input_txt[i:i + n_chunks]
 
     def classify(self, input_text: str, candidate_labels: list[str]) -> dict:
-        reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()) if i < 250)
+        reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()))
         # txt_chunks = list(TextClassifier.divide_chunks([x.strip() for i, x in enumerate(input_text.split())], 200))
         # summary = ''
         # for chunk in txt_chunks:
