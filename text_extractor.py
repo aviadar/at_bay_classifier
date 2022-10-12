@@ -22,7 +22,14 @@ class TextExtractor:
         try:
             with open(file_path) as fid:
                 soup = BeautifulSoup(fid, 'lxml')
-                processed_text = ' ' + soup.text.replace('\n', ' ').replace('\xa0', ' ').replace('\t', ' ')
+                processed_text = ' ' + soup.text.replace('\n', ' ')\
+                    .replace('\xa0', ' ').\
+                    replace('\t', ' ').\
+                    replace('(', ' ').\
+                    replace(')', ' ').\
+                    replace('|', ' ').\
+                    replace('/', ' ').\
+                    replace('-', ' ')
                 return processed_text
         except FileNotFoundError:
             return None
