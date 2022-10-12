@@ -51,7 +51,7 @@ def main():
 
     # remove problematic labeling
     df.label = df.label.str.replace('Payment Processing\n', 'Credit')
-    df.label = df.label.str.replace('Adult Content', 'Porn')
+    df.label = df.label.str.replace('Adult Content', 'Sex')
     df.label = df.label.str.replace('Debt Collection Agency', 'Debt')
     df.label = df.label.str.replace('Educational Services', 'Education')
 
@@ -67,8 +67,8 @@ def main():
 
     logging.error('processing text')
     for index, row in tqdm(df.iterrows()):
-        if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=27/d63dff3f-e904-4b6e-803b-1e98994e9927':
-            continue
+        # if row.ouput_dir[27:] != 'year=2022/month=9/day=12/hour=11/minutes=27/d63dff3f-e904-4b6e-803b-1e98994e9927':
+        #     continue
         # if index < 95:
         #     continue
         #
