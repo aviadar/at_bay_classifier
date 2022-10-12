@@ -64,9 +64,7 @@ class TextClassifier:
 
         lang = self.nlp(reduced_txt)._.language # 3
         if lang['language'] == 'en':
-            summ = self.summarizer.summarize(reduced_txt)
-            print(summ)
-            res = self.classifier(summ, candidate_labels, multi_label=False)
+            res = self.classifier(self.summarizer.summarize(reduced_txt), candidate_labels, multi_label=False)
         else:
             res = None
         return res
