@@ -15,7 +15,7 @@ DOWNLOAD_BUCKET = False
 
 
 def main():
-    logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.FATAL)
+    logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.ERROR)
     logging.error('main started')
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket('crawling-idc')
