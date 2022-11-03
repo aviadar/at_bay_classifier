@@ -11,7 +11,7 @@ from text_extractor import TextExtractor
 from text_classifier import TextClassifier, GpuUsage
 
 OTHER_LABEL_LIMIT = 0.132
-DOWNLOAD_BUCKET = True
+DOWNLOAD_BUCKET = False
 
 
 def main():
