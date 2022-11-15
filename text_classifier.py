@@ -6,6 +6,8 @@ from spacy.language import Language
 from spacy_langdetect import LanguageDetector
 
 
+USE_SUMMARY = False
+
 def get_lang_detector(nlp, name):
     return LanguageDetector()
 
@@ -55,7 +57,7 @@ class TextClassifier:
     #     for i in range(0, len(input_txt), n_chunks):
     #         yield input_txt[i:i + n_chunks]
 
-    def classify(self, input_text: str, candidate_labels: list[str]) -> dict:
+    def classify(self, input_text: str, candidate_labels: list[str]) -> [dict, int]:
         reduced_txt = ' '.join(x.strip() for i, x in enumerate(input_text.split()))
         # txt_chunks = list(TextClassifier.divide_chunks([x.strip() for i, x in enumerate(input_text.split())], 200))
         # summary = ''
@@ -63,8 +65,14 @@ class TextClassifier:
         #     summary += ' ' + self.summarizer.summarize(chunk)
 
         lang = self.nlp(reduced_txt)._.language # 3
+        word_count = 0
         if lang['language'] == 'en':
-            res = self.classifier(self.summarizer.summarize_all(reduced_txt), candidate_labels, multi_label=False)
+            if USE_SUMMARY:
+                sum_text = self.summarizer.summarize_all(reduced_txt)
+            else:
+                sum_text = reduced_txt
+            word_count = len(sum_text.strip().split(" "))
+            res = self.classifier(sum_text, candidate_labels, multi_label=False)
         else:
             res = None
-        return res
+        return res, word_count

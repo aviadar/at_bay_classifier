@@ -61,7 +61,7 @@ def main():
     labels.remove('Other')
 
     # create empty df
-    res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores'])
+    res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores', 'word_count'])
 
     classifier = TextClassifier(gpu=GpuUsage.On)
 
@@ -80,7 +80,7 @@ def main():
                 continue
 
             logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
-            res = classifier.classify(input_text=processed_text, candidate_labels=labels)
+            res, word_count = classifier.classify(input_text=processed_text, candidate_labels=labels)
             if res is None:
                 pred_label = 'Unknown_lang'
             else:
@@ -93,6 +93,7 @@ def main():
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             logging.error(template.format(type(e).__name__, e.args))
             pred_label = 'Unknown'
+            word_count = 0
 
         if not res_df.empty:
             if pred_label != 'Unknown' and pred_label != 'Unknown_lang':
@@ -104,7 +105,8 @@ def main():
                                                           'result_labels_1': res['labels'][1],
                                                           'result_scores_1': res['scores'][1],
                                                           'result_labels_2': res['labels'][2],
-                                                          'result_scores_2': res['scores'][2]
+                                                          'result_scores_2': res['scores'][2],
+                                                          'word_count': word_count
                                                           }, index=[0])],
                                    ignore_index=True)
             else:
@@ -116,7 +118,8 @@ def main():
                                                           'result_labels_1': 'NaN',
                                                           'result_scores_1': 0,
                                                           'result_labels_2': 'NaN',
-                                                          'result_scores_2': 0
+                                                          'result_scores_2': 0,
+                                                          'word_count': 0
                                                           }, index=[0])],
                                    ignore_index=True)
         else:
@@ -129,7 +132,8 @@ def main():
                                        'result_labels_1': res['labels'][1],
                                        'result_scores_1': res['scores'][1],
                                        'result_labels_2': res['labels'][2],
-                                       'result_scores_2': res['scores'][2]
+                                       'result_scores_2': res['scores'][2],
+                                       'word_count': word_count
                                        },
                                       index=[0])
             else:
@@ -141,7 +145,8 @@ def main():
                                        'result_labels_1': 'NaN',
                                        'result_scores_1': 0,
                                        'result_labels_2': 'NaN',
-                                       'result_scores_2': 0
+                                       'result_scores_2': 0,
+                                       'word_count': 0
                                        },
                                       index=[0])
 
