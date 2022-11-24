@@ -12,6 +12,7 @@ from text_classifier import TextClassifier, GpuUsage
 
 OTHER_LABEL_LIMIT = 0.132
 DOWNLOAD_BUCKET = False
+CUT_WORDS = True
 
 
 def main():
@@ -63,6 +64,9 @@ def main():
     # create empty df
     res_df = pd.DataFrame(columns=['id', 'actual_label', 'predicted_label', 'result_labels', 'result_scores', 'word_count'])
 
+    if CUT_WORDS:
+        word_count_df = pd.read_csv('res_df_with_sum_006_word_count.csv')
+
     classifier = TextClassifier(gpu=GpuUsage.On)
 
     logging.error('processing text')
@@ -79,6 +83,9 @@ def main():
             if processed_text is None or processed_text == '':
                 continue
 
+            if CUT_WORDS:
+                words_num = word_count_df.word_count[word_count_df.id == df.job_id[index]].values[0]
+                processed_text = " ".join(processed_text.split(" ")[:words_num])
             logging.error('classifying ' + str(index) + ' of ' + str(len(df.ouput_dir)))
             res, word_count = classifier.classify(input_text=processed_text, candidate_labels=labels)
             if res is None:

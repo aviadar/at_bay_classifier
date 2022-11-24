@@ -6,7 +6,8 @@ from spacy.language import Language
 from spacy_langdetect import LanguageDetector
 
 
-USE_SUMMARY = True
+USE_SUMMARY = False
+
 
 def get_lang_detector(nlp, name):
     return LanguageDetector()
